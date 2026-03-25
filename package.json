@@ -1,7 +1,12 @@
 {
   "name": "tecnologo-api",
+  "workspaces": [
+    "app/*"
+  ],
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev:api": "bun run --filter 'api' dev",
+    "dev:web": "bun run --filter 'web' dev",
+    "dev": "bun run --filter '*' dev"
   },
   "dependencies": {
     "fast-xml-parser": "^5.5.9",
