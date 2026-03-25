@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { extractPageLinks } from './scraper'
 import { novedades } from './routes/novedades'
+import { oportunidadesLaborales } from './routes/oportunidades-laborales'
 
 const app = new Hono()
 
@@ -29,5 +30,6 @@ app.get('/', async (c) => {
 	}
 })
 app.get('/novedades', novedades)
+app.get('/oportunidades-laborales',oportunidadesLaborales)
 
 export default app
