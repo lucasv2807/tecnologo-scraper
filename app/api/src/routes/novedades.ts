@@ -16,8 +16,13 @@ type Segment =
     | { type: 'link'; content: string; href: string }
     | { type: 'image'; src: string; alt?: string };
 
+type ListItem = {
+	content: Segment[];
+	children?: ListItem[];
+};
+
 type DescriptionItem =
-    | { type: 'list'; items: { content: Segment[] }[] }
+	| { type: 'list'; items: ListItem[] }
     | Segment;
 
 function parseInline(node: Node): Segment[] {
@@ -30,9 +35,14 @@ function parseInline(node: Node): Segment[] {
 	// elemento
 	if (node.nodeType === 1) {
 		const el = node as Element
+		const tag = el.tagName.toLowerCase()
+
+		if (tag === 'ul' || tag === 'ol') {
+			return []
+		}
 
 		// caso link
-		if (el.tagName.toLowerCase() === 'a') {
+		if (tag === 'a') {
 			return [
 				{
 					type: 'link',
@@ -43,7 +53,7 @@ function parseInline(node: Node): Segment[] {
 		}
 
 		// caso imagen
-		if (el.tagName.toLowerCase() === 'img') {
+		if (tag === 'img') {
 			const alt = el.getAttribute('alt')?.trim()
 
 			return [
@@ -62,6 +72,27 @@ function parseInline(node: Node): Segment[] {
 	return []
 }
 
+function parseListItem(li: Element): ListItem {
+	const content = Array.from(li.childNodes).flatMap(parseInline)
+	const children = Array.from(li.children)
+		.filter(child => {
+			const tag = child.tagName.toLowerCase()
+			return tag === 'ul' || tag === 'ol'
+		})
+		.flatMap(parseList)
+
+	return {
+		content,
+		...(children.length > 0 ? { children } : {})
+	}
+}
+
+function parseList(list: Element): ListItem[] {
+	return Array.from(list.children)
+		.filter(li => li.tagName.toLowerCase() === 'li')
+		.map(parseListItem)
+}
+
 export const scrapeDescription = (html: string): DescriptionItem[] => {
 	const dom = new JSDOM(html)
 	const document = dom.window.document
@@ -70,15 +101,11 @@ export const scrapeDescription = (html: string): DescriptionItem[] => {
 	return Array.from(root.children).flatMap((el): DescriptionItem[] => {
 		const tag = el.tagName.toLowerCase()
 
-		if (tag === 'ul') {
+		if (tag === 'ul' || tag === 'ol') {
 			return [
 				{
 					type: 'list',
-					items: Array.from(el.children)
-						.filter(li => li.tagName.toLowerCase() === 'li')
-						.map(li => ({
-							content: Array.from(li.childNodes).flatMap(parseInline)
-						}))
+					items: parseList(el)
 				}
 			]
 		}

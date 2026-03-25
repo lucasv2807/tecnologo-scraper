@@ -1,0 +1,36 @@
+---
+type Segment =
+	| { type: 'text'; content: string }
+	| { type: 'link'; content: string; href: string }
+	| { type: 'image'; src: string; alt?: string };
+
+type ListItem = {
+	content: Segment[];
+	children?: ListItem[];
+};
+
+interface Props {
+	items: ListItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul>
+	{items.map((listItem) => (
+		<li>
+			{listItem.content.map((segment) => {
+				if (segment.type === 'text') {
+					return <span>{segment.content}</span>;
+				}
+
+				if (segment.type === 'link') {
+					return <a href={segment.href}>{segment.content}</a>;
+				}
+
+				return <img src={segment.src} alt={segment.alt || ''} loading="lazy" />;
+			})}
+			{listItem.children && listItem.children.length > 0 ? <Astro.self items={listItem.children} /> : null}
+		</li>
+	))}
+</ul>
