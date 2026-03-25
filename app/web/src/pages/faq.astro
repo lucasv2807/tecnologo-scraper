@@ -1,0 +1,42 @@
+---
+import Layout from "../layouts/layout.astro";
+
+const res = await fetch("http://localhost:3000/faq");
+const faq: FaqSection[] = await res.json();
+
+interface FaqItem {
+    question: string;
+    answer: string;
+}
+
+interface FaqSection {
+    topic: string;
+    items: FaqItem[];
+}
+---
+
+<Layout>
+    <main>
+        {
+            faq.length === 0 ? (
+                <p>No hay preguntas frecuentes por el momento.</p>
+            ) : (
+                faq.map((section) => (
+                    <article>
+                        <header>
+                            <h2>{section.topic}</h2>
+                        </header>
+                        <ul>
+                            {section.items.map((item) => (
+                                <li>
+                                    <strong>{item.question}</strong>
+                                    <p>{item.answer}</p>
+                                </li>
+                            ))}
+                        </ul>
+                    </article>
+                ))
+            )
+        }
+    </main>
+</Layout>
