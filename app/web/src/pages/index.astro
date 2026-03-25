@@ -1,11 +1,8 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import NestedList from '../components/NestedList.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import NestedList from "../components/NestedList.astro";
+import Layout from "../layouts/layout.astro";
 
-const res = await fetch('http://localhost:3000/novedades');
+const res = await fetch("http://localhost:3000/novedades");
 export interface NewsItem {
 	title: string;
 	description: DescriptionItem[];
@@ -15,18 +12,16 @@ export interface NewsItem {
 	link?: string | undefined;
 }
 type Segment =
-	| { type: 'text'; content: string }
-	| { type: 'link'; content: string; href: string }
-	| { type: 'image'; src: string; alt?: string };
+	| { type: "text"; content: string }
+	| { type: "link"; content: string; href: string }
+	| { type: "image"; src: string; alt?: string };
 
 type ListItem = {
 	content: Segment[];
 	children?: ListItem[];
 };
 
-type DescriptionItem =
-	| { type: 'list'; items: ListItem[] }
-	| Segment;
+type DescriptionItem = { type: "list"; items: ListItem[] } | Segment;
 
 const news: NewsItem[] = await res.json();
 
@@ -34,68 +29,72 @@ const formatDate = (value: string) => {
 	const date = new Date(value);
 	if (Number.isNaN(date.getTime())) return value;
 
-	return new Intl.DateTimeFormat('es-UY', {
-		dateStyle: 'long',
-		timeStyle: 'short',
+	return new Intl.DateTimeFormat("es-UY", {
+		dateStyle: "long",
+		timeStyle: "short",
 	}).format(date);
 };
-
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			{
-				news.length === 0 ? (
-					<p>No hay novedades por el momento.</p>
-				) : (
-					news.map((item) => (
-						<article>
-							<header>
-								<h2>{item.title}</h2>
+<Layout>
+	<main>
+		{
+			news.length === 0 ? (
+				<p>No hay novedades por el momento.</p>
+			) : (
+				news.map((item) => (
+					<article>
+						<header>
+							<h2>{item.title}</h2>
+							<p>
+								<small>
+									Publicado:{" "}
+									<time datetime={item.pubDate}>
+										{formatDate(item.pubDate)}
+									</time>
+									{item.author
+										? ` | Autor: ${item.author}`
+										: ""}
+								</small>
+							</p>
+							{item.link ? (
 								<p>
-									<small>
-										Publicado: <time datetime={item.pubDate}>{formatDate(item.pubDate)}</time>
-										{item.author ? ` | Autor: ${item.author}` : ''}
-									</small>
+									<a href={item.link}>Ver fuente original</a>
 								</p>
-								{item.link ? (
-									<p>
-										<a href={item.link}>Ver fuente original</a>
-									</p>
-								) : null}
-							</header>
-							<section>
-								{item.description.map((desc) => {
-									if (desc.type === 'list') {
-										return <NestedList items={desc.items} />;
-									}
+							) : null}
+						</header>
+						<section>
+							{item.description.map((desc) => {
+								if (desc.type === "list") {
+									return <NestedList items={desc.items} />;
+								}
 
-									if (desc.type === 'text') {
-										return <p>{desc.content}</p>;
-									}
+								if (desc.type === "text") {
+									return <p>{desc.content}</p>;
+								}
 
-									if (desc.type === 'link') {
-										return (
-											<p>
-												<a href={desc.href}>{desc.content}</a>
-											</p>
-										);
-									}
+								if (desc.type === "link") {
+									return (
+										<p>
+											<a href={desc.href}>
+												{desc.content}
+											</a>
+										</p>
+									);
+								}
 
-									return <img src={desc.src} alt={desc.alt || ''} loading="lazy" />;
-								})}
-							</section>
-						</article>
-					))
-				)
-			}
-		</main>
-		<Footer />
-	</body>
-</html>
+								return (
+									<img
+										src={desc.src}
+										alt={desc.alt || ""}
+										loading="lazy"
+									/>
+								);
+							})}
+						</section>
+					</article>
+				))
+			)
+		}
+	</main>
+</Layout>

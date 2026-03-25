@@ -1,53 +1,46 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import Layout from "../layouts/layout.astro";
 
-const res = await fetch('http://localhost:3000/oportunidades-laborales');
+const res = await fetch("http://localhost:3000/oportunidades-laborales");
 const oportunidades: OportunidadLaboral[] = await res.json();
 interface OportunidadLaboral {
-	year: string
-	items: OportunidadLaboralItem[]
+	year: string;
+	items: OportunidadLaboralItem[];
 }
 
 interface OportunidadLaboralItem {
-	text: string
-	href: string
+	text: string;
+	href: string;
 }
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			{
-				oportunidades.length === 0 ? (
-					<p>No hay oportunidades laborales por el momento.</p>
-				) : (
-					oportunidades.map((item) => (
-						<article>
-							<header>
-								<h2>{item.year}</h2>
-							</header>
-							<ul>
-								{item.items.map((subitem) => (
-									<li>
-										<a href={subitem.href} target="_blank" rel="noopener noreferrer">
-											{subitem.text}
-										</a>
-									</li>
-								))}
-							</ul>
-						</article>
-					))
-				)
-			}
-		</main>
-		<Footer />
-	</body>
-</html>
+<Layout>
+	<main>
+		{
+			oportunidades.length === 0 ? (
+				<p>No hay oportunidades laborales por el momento.</p>
+			) : (
+				oportunidades.map((item) => (
+					<article>
+						<header>
+							<h2>{item.year}</h2>
+						</header>
+						<ul>
+							{item.items.map((subitem) => (
+								<li>
+									<a
+										href={subitem.href}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{subitem.text}
+									</a>
+								</li>
+							))}
+						</ul>
+					</article>
+				))
+			)
+		}
+	</main>
+</Layout>
