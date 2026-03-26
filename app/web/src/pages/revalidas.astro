@@ -1,0 +1,95 @@
+---
+import Layout from "../layouts/layout.astro";
+const res = await fetch("http://localhost:3000/revalidas");
+const revalidas: Revalida = await res.json();
+
+interface Revalida {
+    udelar: {
+        titulo: string;
+        revalidas: string[];
+        total: number;
+        totalMaterias: number;
+    };
+    tecnologo: {
+        titulo: string;
+        revalidas: string[];
+        total: number;
+        totalMaterias: number;
+    };
+    equivalencias: Equivalencia[];
+}
+type Equivalencia = {
+    tecnologo: string;
+    udelar: string[];
+};
+
+type TableRow = {
+    udelar: string;
+    tecnologo: string;
+    rowspan: number;
+    isFirst: boolean;
+};
+
+const tableRows: TableRow[] = revalidas.equivalencias.flatMap((equivalencia) => {
+    const materias = equivalencia.udelar.length > 0 ? equivalencia.udelar : ["Sin materia asociada"];
+
+    return materias.map((materia, index) => ({
+        udelar: materia,
+        tecnologo: equivalencia.tecnologo,
+        rowspan: materias.length,
+        isFirst: index === 0,
+    }));
+});
+---
+<Layout>
+    <main>
+        <section>
+            <h2>Revalidas por Asignatura</h2>
+            <p>
+                Equivalencias detectadas: {revalidas.tecnologo.total}. Materias Udelar contempladas: {revalidas.udelar.total}.
+            </p>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">{revalidas.udelar.titulo}</th>
+                            <th scope="col">{revalidas.tecnologo.titulo}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tableRows.map((row) => (
+                            <tr>
+                                <td>{row.udelar}</td>
+                                {row.isFirst ? <td rowspan={row.rowspan}>{row.tecnologo}</td> : null}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</Layout>
+
+<style>
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        border-collapse: collapse;
+        min-width: 780px;
+    }
+
+    th,
+    td {
+        border: 1px solid rgba(34, 41, 57, 0.2);
+        padding: 0.75rem;
+        vertical-align: top;
+        text-align: left;
+    }
+
+    thead th {
+        background: rgba(35, 55, 255, 0.1);
+    }
+</style>
