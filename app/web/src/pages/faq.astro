@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/layout.astro";
-
-const res = await fetch("http://localhost:3000/faq");
+import { API_URL } from "../consts";
+const res = await fetch(`${API_URL}/faq`);
 const faq: FaqSection[] = await res.json();
 
 interface FaqItem {

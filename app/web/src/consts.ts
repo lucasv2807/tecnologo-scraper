@@ -3,3 +3,4 @@
 
 export const SITE_TITLE = 'Tencólogo en Informática - Montevideo'
 export const SITE_DESCRIPTION = 'Welcome to my website!'
+export const API_URL = import.meta.env.API_URL || 'http://localhost:3000'

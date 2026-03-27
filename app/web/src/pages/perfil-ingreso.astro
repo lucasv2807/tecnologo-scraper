@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/layout.astro";
-const res = await fetch("http://localhost:3000/perfil-de-ingreso");
+import { API_URL } from "../consts";
+const res = await fetch(`${API_URL}/perfil-de-ingreso`);
 const perfilDeIngreso: PerfilDeIngreso = await res.json();
 interface PerfilDeIngreso {
     ingreso: SeccionPerfil;

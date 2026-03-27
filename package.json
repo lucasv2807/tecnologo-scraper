@@ -6,7 +6,7 @@
   "scripts": {
     "dev:api": "bun run --filter 'api' dev",
     "dev:web": "bun run --filter 'web' dev",
-    "dev": "bun run --filter '*' dev"
+    "dev": "bun run --env-file=.env --filter '*' dev"
   },
   "dependencies": {
     "fast-xml-parser": "^5.5.9",

@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/layout.astro";
-const res = await fetch("http://localhost:3000/revalidas");
+import { API_URL } from "../consts";
+const res = await fetch(`${API_URL}/revalidas`);
 const revalidas: Revalida = await res.json();
 
 interface Revalida {
