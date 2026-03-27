@@ -4,8 +4,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: api
+      dockerfile: Dockerfile.api
     ports:
       - "3000:3000"
     environment:
@@ -17,8 +16,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: Dockerfile
-      target: web
+      dockerfile: Dockerfile.web
     ports:
       - "80:80"
     depends_on:

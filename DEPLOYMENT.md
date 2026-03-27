@@ -3,19 +3,18 @@
 ## Arquitectura
 
 ```
-Docker Multi-Stage Build:
-├─ builder (bun):        Compila Astro + instala dependencias
-├─ api (bun):           API Hono en puerto 3000  
-└─ web (nginx):         Sirve archivos estáticos en puerto 80
+Dockerfiles separados:
+├─ Dockerfile.api:      API Hono en Bun (puerto 3000)
+└─ Dockerfile.web:      Build Astro + runtime Nginx (puerto 80)
 
 Flujo Build:
-1. builder: bun install + bun run build (genera dist/)
-2. api: copia node_modules + app/api
-3. web: copia dist/ a nginx (production-ready)
+1. API: bun install + start:api
+2. Web builder: bun install + bun run build (genera dist/)
+3. Web runtime: copia dist/ a nginx (production-ready)
 
 Docker Compose:
-├─ api:  target=api   → puerto 3000 (Bun runtime)
-└─ web:  target=web   → puerto 80 (Nginx serving static files)
+├─ api: usa Dockerfile.api → puerto 3000 (Bun runtime)
+└─ web: usa Dockerfile.web → puerto 80 (Nginx serving static files)
 ```
 
 ## ✅ Configuración Validada Según Astro Docs
@@ -104,7 +103,7 @@ curl http://localhost/api/revalidas     # Astro page via Nginx
 | Nginz 404 en rutas | Revisa que `dist/` tiene los archivos. Si no, `astro build` falló |
 | Astro build: "Unable to connect" a API | Código hace requests a API durante build. Ver sección "Código de Astro" |
 | "502 Bad Gateway" en Dokploy | API no está respondiendo. Revisa logs del servicio api |
-| No se ve el sitio | Revisa que nginx.conf está siendo copiado en Dockerfile |
+| No se ve el sitio | Revisa que nginx.conf está siendo copiado en Dockerfile.web |
 
 ## FAQ
 
@@ -115,7 +114,7 @@ R: La documentación oficial de Astro dice que `astro preview` "is not designed 
 R: Sí, pero EN EL CLIENTE (en etiquetas `<script>`), no durante build (en layouts/pages).
 
 **P: ¿Dónde voy los archivos compilados?**  
-R: En `app/web/dist/`. El Dockerfile copia esos archivos a nginx durante build.
+R: En `app/web/dist/`. Dockerfile.web copia esos archivos a nginx durante build.
 
 **P: ¿Cómo verifico que mi deploy funcionó?**  
 R: Entra a www.tudominio.com y verifica que se carga. Luego verifica www.tudominio.com/api/revalidas (debe tirar la página HTML, no JSON).
