@@ -8,6 +8,7 @@ node_modules
 .DS_Store
 *.log
 *.lock
+!bun.lock
 dist
 build
 .next
