@@ -4,6 +4,7 @@ import { novedades } from './routes/novedades'
 import { oportunidadesLaborales } from './routes/oportunidades-laborales'
 import { faq } from './routes/faq'
 import { revalidas } from './routes/revalidas'
+import { perfilDeIngreso } from './routes/perfil-de-ingreso'
 
 const app = new Hono()
 
@@ -35,5 +36,6 @@ app.get('/novedades', novedades)
 app.get('/oportunidades-laborales',oportunidadesLaborales)
 app.get('/faq', faq)
 app.get('/revalidas', revalidas)
+app.get('/perfil-de-ingreso', perfilDeIngreso)
 
 export default app

@@ -1,0 +1,136 @@
+---
+import Layout from "../layouts/layout.astro";
+const res = await fetch("http://localhost:3000/perfil-de-ingreso");
+const perfilDeIngreso: PerfilDeIngreso = await res.json();
+interface PerfilDeIngreso {
+    ingreso: SeccionPerfil;
+    egreso: SeccionPerfil;
+}
+type PerfilBloque = {
+	titulos: string[]
+	items: string[]
+	subItems: string[]
+}
+
+type SeccionPerfil = {
+	bloques: PerfilBloque[]
+	totalTitulos: number
+	totalItems: number
+	totalSubItems: number
+}
+
+const sectionLabels: Record<keyof PerfilDeIngreso, string> = {
+	ingreso: "Perfil de Ingreso",
+	egreso: "Perfil de Egreso",
+};
+
+const entries = Object.entries(perfilDeIngreso) as [keyof PerfilDeIngreso, SeccionPerfil][];
+---
+
+<Layout>
+    <main class="perfil-page">
+        <h1>Perfil de la carrera</h1>
+
+        <div class="sections-grid">
+            {
+                entries.map(([seccion, data]) => (
+                    <section class="perfil-section">
+                        <h2>{sectionLabels[seccion]}</h2>
+
+                        {data.bloques.map((bloque) => (
+                            <article class="bloque">
+                                {bloque.titulos.map((titulo) => (
+                                    <h3>{titulo}</h3>
+                                ))}
+
+                                <ul class="items-list">
+                                    {bloque.items.map((item) => (
+                                        <li>{item}</li>
+                                    ))}
+                                </ul>
+
+                                {bloque.subItems.length > 0 && (
+                                    <ul class="subitems-list">
+                                        {bloque.subItems.map((subItem) => (
+                                            <li>{subItem}</li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </article>
+                        ))}
+                    </section>
+                ))
+            }
+        </div>
+    </main>
+</Layout>
+
+<style>
+    .perfil-page h1 {
+        margin-bottom: 1.5rem;
+        font-size: 2.2rem;
+    }
+
+    .sections-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: 1fr;
+    }
+
+    .perfil-section {
+        border: 1px solid rgba(34, 41, 57, 0.16);
+        border-radius: 0.8rem;
+        background: rgba(255, 255, 255, 0.75);
+        padding: 1rem;
+    }
+
+    .perfil-section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid rgba(35, 55, 255, 0.15);
+        padding-bottom: 0.4rem;
+    }
+
+    .bloque {
+        padding: 0.85rem;
+        border: 1px solid rgba(34, 41, 57, 0.12);
+        border-radius: 0.6rem;
+        background: #fff;
+    }
+
+    .bloque + .bloque {
+        margin-top: 0.75rem;
+    }
+
+    .bloque h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.55rem;
+    }
+
+    .items-list,
+    .subitems-list {
+        margin: 0;
+    }
+
+    .items-list li,
+    .subitems-list li {
+        margin-bottom: 0.45rem;
+        line-height: 1.45;
+    }
+
+    .subitems-list {
+        margin-top: 0.25rem;
+        margin-left: 1.25rem;
+        list-style: circle;
+    }
+
+    @media (max-width: 720px) {
+        .perfil-page h1 {
+            font-size: 1.8rem;
+        }
+
+        .perfil-section h2 {
+            font-size: 1.35rem;
+        }
+    }
+</style>
