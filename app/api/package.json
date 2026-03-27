@@ -1,7 +1,9 @@
 {
   "name": "api",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "start": "NODE_ENV=production bun run src/index.ts",
+    "build": "echo 'API ready (TypeScript compiled on-the-fly by Bun)'"
   },
   "dependencies": {
     "hono": "^4.12.9"

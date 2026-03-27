@@ -11,7 +11,18 @@ const app = new Hono()
 app.use('*', rateLimiter({
 	windowMs: 60 * 1000,
 	limit: 100, // Limit each client to 100 requests per window
-	keyGenerator: (c) => c.req.header('x-forwarded-for') ?? '', // Use IP address as key
+	keyGenerator: (c) => {
+		const xff = c.req.header('x-forwarded-for')
+		if (xff) return xff.split(',')[0].trim()
+
+		const realIp = c.req.header('x-real-ip')
+		if (realIp) return realIp
+
+		const cfIp = c.req.header('cf-connecting-ip')
+		if (cfIp) return cfIp
+
+		return 'global'
+	}
 }))
 app.use('*', cache({ 
 	cacheName: 'api-cache', 
