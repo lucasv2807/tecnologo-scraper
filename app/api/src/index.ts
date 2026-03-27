@@ -1,11 +1,22 @@
 import { Hono } from 'hono'
+import { rateLimiter } from 'hono-rate-limiter'
+import { cache } from 'hono/cache'
 import { novedades } from './routes/novedades'
 import { oportunidadesLaborales } from './routes/oportunidades-laborales'
 import { faq } from './routes/faq'
 import { revalidas } from './routes/revalidas'
 import { perfilDeIngreso } from './routes/perfil-de-ingreso'
-
 const app = new Hono()
+
+app.use('*', rateLimiter({
+	windowMs: 60 * 1000,
+	limit: 100, // Limit each client to 100 requests per window
+	keyGenerator: (c) => c.req.header('x-forwarded-for') ?? '', // Use IP address as key
+}))
+app.use('*', cache({ 
+	cacheName: 'api-cache', 
+	cacheControl: 'max-age=60 stale-while-revalidate=300' 
+}))
 
 app.get('/', async (c) => {
 	return c.json({
@@ -20,7 +31,7 @@ app.get('/', async (c) => {
 	})
 })
 app.get('/novedades', novedades)
-app.get('/oportunidades-laborales',oportunidadesLaborales)
+app.get('/oportunidades-laborales', oportunidadesLaborales)
 app.get('/faq', faq)
 app.get('/revalidas', revalidas)
 app.get('/perfil-de-ingreso', perfilDeIngreso)

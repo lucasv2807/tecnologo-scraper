@@ -11,6 +11,7 @@
   "dependencies": {
     "fast-xml-parser": "^5.5.9",
     "hono": "^4.12.9",
+    "hono-rate-limiter": "^0.5.3",
     "html-entities": "^2.6.0",
     "jsdom": "^29.0.1"
   },
