@@ -11,7 +11,6 @@ app.get('/', async (c) => {
 	return c.json({
 		message: 'Bienvenido a la API del Tecnólogo en Programación',
 		endpoints: {
-			'/horarios': 'Obtiene los horarios de las materias',
 			'/novedades': 'Obtiene las últimas novedades del instituto',
 			'/oportunidades-laborales': 'Obtiene las oportunidades laborales disponibles',
 			'/faq': 'Obtiene las preguntas frecuentes',
