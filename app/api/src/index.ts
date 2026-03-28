@@ -30,6 +30,14 @@ app.use('*', cache({
 }))
 
 app.get('/', async (c) => {
+	console.log('[api] GET /', {
+		time: new Date().toISOString(),
+		xForwardedFor: c.req.header('x-forwarded-for') ?? null,
+		xRealIp: c.req.header('x-real-ip') ?? null,
+		host: c.req.header('host') ?? null,
+		userAgent: c.req.header('user-agent') ?? null
+	})
+
 	return c.json({
 		message: 'Bienvenido a la API del Tecnólogo en Programación',
 		endpoints: {
