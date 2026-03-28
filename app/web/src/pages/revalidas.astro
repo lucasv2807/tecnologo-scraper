@@ -1,8 +1,7 @@
 ---
 import Layout from "../layouts/layout.astro";
-import { API_URL } from "../consts";
-const res = await fetch(`${API_URL}/revalidas`);
-const revalidas: Revalida = await res.json();
+import { fetchWrapper } from "../fetch-wrapper";
+const revalidas: Revalida = await fetchWrapper('/revalidas', { cacheMs: 24 * 60 * 60 * 1000 });
 
 interface Revalida {
     udelar: {

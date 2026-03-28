@@ -1,8 +1,9 @@
 ---
+const prerender = false
 import Layout from "../layouts/layout.astro";
-import { API_URL } from "../consts";
-const res = await fetch(`${API_URL}/faq`);
-const faq: FaqSection[] = await res.json();
+import { fetchWrapper } from "../fetch-wrapper";
+
+const faq: FaqSection[] = await fetchWrapper('/faq', { cacheMs: 24 * 60 * 60 * 1000 });
 
 interface FaqItem {
     question: string;

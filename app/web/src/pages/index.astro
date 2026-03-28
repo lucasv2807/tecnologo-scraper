@@ -1,8 +1,10 @@
 ---
 import NestedList from "../components/NestedList.astro";
 import Layout from "../layouts/layout.astro";
-import { API_URL } from "../consts";
-const res = await fetch(`${API_URL}/novedades`);
+import { fetchWrapper } from "../fetch-wrapper";
+
+const news: NewsItem[] = await fetchWrapper('/novedades');
+
 export interface NewsItem {
 	title: string;
 	description: DescriptionItem[];
@@ -22,8 +24,6 @@ type ListItem = {
 };
 
 type DescriptionItem = { type: "list"; items: ListItem[] } | Segment;
-
-const news: NewsItem[] = await res.json();
 
 const formatDate = (value: string) => {
 	const date = new Date(value);

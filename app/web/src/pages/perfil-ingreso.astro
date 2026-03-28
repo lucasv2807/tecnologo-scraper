@@ -1,8 +1,7 @@
 ---
 import Layout from "../layouts/layout.astro";
-import { API_URL } from "../consts";
-const res = await fetch(`${API_URL}/perfil-de-ingreso`);
-const perfilDeIngreso: PerfilDeIngreso = await res.json();
+import { fetchWrapper } from "../fetch-wrapper";
+const perfilDeIngreso: PerfilDeIngreso = await fetchWrapper('/perfil-de-ingreso', { cacheMs: 7 * 60 * 60 * 1000 });
 interface PerfilDeIngreso {
     ingreso: SeccionPerfil;
     egreso: SeccionPerfil;

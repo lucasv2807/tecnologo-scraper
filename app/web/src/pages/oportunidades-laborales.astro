@@ -1,9 +1,9 @@
 ---
 import Layout from "../layouts/layout.astro";
-import { API_URL } from "../consts";
+import { fetchWrapper } from "../fetch-wrapper";
 
-const res = await fetch(`${API_URL}/oportunidades-laborales`);
-const oportunidades: OportunidadLaboral[] = await res.json();
+const oportunidades: OportunidadLaboral[] = await fetchWrapper('/oportunidades-laborales', { cacheMs: 60 * 60 * 1000 });
+
 interface OportunidadLaboral {
 	year: string;
 	items: OportunidadLaboralItem[];
