@@ -8,7 +8,8 @@
     "dev:web": "bun run --filter 'web' dev",
     "dev": "bun run --env-file=.env --filter '*' dev",
     "build": "bun run --filter 'web' build",
-    "start:api": "bun run --filter 'api' start"
+    "start:api": "bun run --filter 'api' start",
+    "start:web": "bun run --filter 'web' preview"
   },
   "dependencies": {
     "fast-xml-parser": "^5.5.9",
