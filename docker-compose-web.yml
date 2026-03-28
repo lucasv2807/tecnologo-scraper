@@ -3,6 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.web
-    ports:
+    expose:
       - "80"
     restart: unless-stopped
