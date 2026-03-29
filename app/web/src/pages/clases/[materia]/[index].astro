@@ -1,0 +1,198 @@
+---
+import Layout from "../../../layouts/layout.astro";
+import { fetchWrapper } from "../../../fetch-wrapper";
+
+type LinkItem = {
+  text: string;
+  href: string;
+};
+
+type ListItem = {
+  text: string;
+  items?: ListItem[];
+};
+
+type TableField = {
+  label: string;
+  key: string;
+  text: string;
+  paragraphs: string[];
+  lists: ListItem[];
+  links: LinkItem[];
+  html: string;
+};
+
+type ContentBlock =
+  | { type: "heading"; level: number; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "list"; items: ListItem[] };
+
+type ClaseOk = {
+  materia: string;
+  pagina: string;
+  sourceUrl: string;
+  title: string;
+  fields: TableField[];
+  fieldsByKey: Record<string, TableField>;
+  blocks: ContentBlock[];
+};
+
+type ClaseError = {
+  error: string;
+  status?: number;
+  sourceUrl?: string;
+};
+
+const { materia, index } = Astro.params;
+const claseData = await fetchWrapper<ClaseOk | ClaseError>(`/clase/${materia}/${index}`);
+
+const isError = "error" in claseData;
+const classInfo = isError ? null : (claseData as ClaseOk);
+
+const resolveSourceHref = (href: string, sourceUrl: string): string => {
+  try {
+    return new URL(href, sourceUrl).toString();
+  } catch {
+    return href;
+  }
+};
+---
+
+<Layout>
+  <main>
+    {
+      isError ? (
+        <section>
+          <h1>No se pudo cargar la clase</h1>
+          <p>{claseData.error}</p>
+          {claseData.status ? <p>Codigo de estado: {claseData.status}</p> : null}
+          {claseData.sourceUrl ? (
+            <p>
+              Fuente consultada: <a href={claseData.sourceUrl}>{claseData.sourceUrl}</a>
+            </p>
+          ) : null}
+        </section>
+      ) : (
+        <>
+          <header class="hero">
+            <h1>{classInfo!.title || `${classInfo!.materia} - ${classInfo!.pagina}`}</h1>
+          </header>
+
+          {classInfo!.fields.length > 0 ? (
+            <section>
+              <h2>Informacion principal</h2>
+              <div class="table-wrapper">
+                <table>
+                  <tbody>
+                    {classInfo!.fields.map((field) => (
+                      <tr>
+                        <th scope="row">{field.label}</th>
+                        <td>
+                          {field.paragraphs.length > 0 ? (
+                            field.paragraphs.map((paragraph) => <p>{paragraph}</p>)
+                          ) : (
+                            <p>{field.text}</p>
+                          )}
+
+                          {field.links.length > 0 ? (
+                            <ul>
+                              {field.links.map((link) => (
+                                <li>
+                                  <a
+                                    href={resolveSourceHref(link.href, classInfo!.sourceUrl)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {link.text || link.href}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : null}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          ) : null}
+
+          {classInfo!.blocks.length > 0 ? (
+            <section>
+              <h2>Contenido</h2>
+              {classInfo!.blocks.map((block) => {
+                if (block.type === "heading") {
+                  if (block.level === 1) return <h1>{block.text}</h1>;
+                  if (block.level === 2) return <h2>{block.text}</h2>;
+                  if (block.level === 3) return <h3>{block.text}</h3>;
+                  if (block.level === 4) return <h4>{block.text}</h4>;
+                  if (block.level === 5) return <h5>{block.text}</h5>;
+                  return <h6>{block.text}</h6>;
+                }
+
+                if (block.type === "paragraph") {
+                  return <p>{block.text}</p>;
+                }
+
+                const renderList = (items: ListItem[]) => (
+                  <ul>
+                    {items.map((item) => (
+                      <li>
+                        {item.text}
+                        {item.items && item.items.length > 0 ? renderList(item.items) : null}
+                      </li>
+                    ))}
+                  </ul>
+                );
+
+                return renderList(block.items);
+              })}
+            </section>
+          ) : null}
+        </>
+      )
+    }
+  </main>
+</Layout>
+
+<style>
+  .hero {
+    margin-bottom: 2rem;
+  }
+
+  .eyebrow {
+    margin-bottom: 0.25rem;
+    color: rgb(var(--gray));
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 680px;
+  }
+
+  th,
+  td {
+    border: 1px solid rgba(var(--gray), 0.3);
+    vertical-align: top;
+    padding: 0.75rem;
+    text-align: left;
+  }
+
+  th {
+    width: 28%;
+    background: rgba(var(--gray-light), 0.45);
+  }
+
+  td p:last-child {
+    margin-bottom: 0;
+  }
+</style>

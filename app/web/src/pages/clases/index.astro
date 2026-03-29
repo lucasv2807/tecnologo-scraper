@@ -1,0 +1,58 @@
+---
+import { fetchWrapper } from "../../fetch-wrapper";
+import Layout from "../../layouts/layout.astro";
+const clasesData = await fetchWrapper<CursoPorSemestre[]>(`/clases`);
+
+interface CursoItem {
+    text: string;
+    link: string;
+}
+
+interface CursoPorSemestre {
+    year: string;
+    items: CursoItem[];
+}
+---
+
+<Layout>
+    <main>
+        <h1>Clases</h1>
+        {
+            clasesData.map((semestre) => (
+                <section>
+                    <h2>{semestre.year}</h2>
+                    <ul>
+                        {semestre.items.map((item) => {
+                            const link = item.link;
+                            if (
+                                link.endsWith(".pdf")
+                            ) {
+                                return (
+                                    <li>
+                                        <a
+                                            href={link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {item.text}
+                                        </a>
+                                    </li>
+                                );
+                            } else {
+                                return (
+                                    <li>
+                                        <a
+                                            href={`/clases/${item.link.split(".")[0]}`}
+                                        >
+                                            {item.text}
+                                        </a>
+                                    </li>
+                                );
+                            }
+                        })}
+                    </ul>
+                </section>
+            ))
+        }
+    </main>
+</Layout>

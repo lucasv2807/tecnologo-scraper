@@ -6,6 +6,11 @@ import { oportunidadesLaborales } from './routes/oportunidades-laborales'
 import { faq } from './routes/faq'
 import { revalidas } from './routes/revalidas'
 import { perfilDeIngreso } from './routes/perfil-de-ingreso'
+import { clases } from './routes/clases'
+import { clase } from './routes/clase/clase'
+import { docente } from './routes/clase/docente'
+import { material } from './routes/clase/material'
+import { resultados } from './routes/clase/resultados'
 const app = new Hono()
 
 app.use('*', rateLimiter({
@@ -46,5 +51,10 @@ app.get('/oportunidades-laborales', oportunidadesLaborales)
 app.get('/faq', faq)
 app.get('/revalidas', revalidas)
 app.get('/perfil-de-ingreso', perfilDeIngreso)
+app.get('/clases', clases)
+app.get('/clase/:materia/docente', docente)
+app.get('/clase/:materia/material', material)
+app.get('/clase/:materia/resultados', resultados)
+app.get('/clase/:materia/:pagina', clase)
 
 export default app
