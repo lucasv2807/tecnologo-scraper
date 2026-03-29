@@ -1,0 +1,32 @@
+---
+import NavMateria from "../../../../components/NavMateria.astro";
+import { fetchWrapper } from "../../../../fetch-wrapper";
+import Layout from "../../../../layouts/layout.astro";
+
+const { materia, inicio } = Astro.params;
+const resultados: Resultados  = await fetchWrapper(`/clase/${materia}/resultados`, { cacheMs: 24 * 60 * 60 * 1000 });
+interface Resultados {
+    title: string;
+    items: Item[];
+}
+
+interface Item {
+    link:  string;
+    title: string;
+}
+
+---
+<Layout>
+    <div class="container">
+    <NavMateria inicio={inicio} />
+    <main>
+        <h1 class="resultado-title">{resultados.title}</h1>
+        <h2>Resultados</h2>
+        {resultados.items.map((item) => (
+            <div class="resultado-item">
+                <a href={item.link} target="_blank" rel="noopener noreferrer" class="resultado-link">{item.title}</a>
+            </div>
+        ))}
+    </main>
+    </div>
+</Layout>

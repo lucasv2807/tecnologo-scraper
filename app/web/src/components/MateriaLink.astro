@@ -1,0 +1,36 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = HTMLAttributes<'a'>;
+
+const { href, class: className, ...props } = Astro.props;
+
+const normalizePath = (path: string): string => {
+	const withoutBase = path.replace(import.meta.env.BASE_URL, '');
+	if (withoutBase.length > 1 && withoutBase.endsWith('/')) {
+		return withoutBase.slice(0, -1);
+	}
+	return withoutBase;
+};
+
+const pathname = normalizePath(Astro.url.pathname);
+const hrefPath = typeof href === 'string' ? normalizePath(href) : '';
+const subpath = pathname.match(/[^\/]+/g);
+const rootSection = '/' + (subpath?.[0] || '');
+const isActive = hrefPath === pathname || hrefPath === rootSection;
+---
+
+<a href={href} class:list={[className, { active: isActive }]} aria-current={isActive ? 'page' : undefined} {...props}>
+	<slot />
+</a>
+<style>
+	a {
+		display: inline-block;
+		text-decoration: none;
+		color: black;
+	}
+	a.active {
+		font-weight: bolder;
+		font-size: x-large;
+	}
+</style>

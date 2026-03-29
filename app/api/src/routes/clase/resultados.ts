@@ -110,6 +110,7 @@ export async function resultados(c: Context) {
 	const doc = new JSDOM(html).window.document
 	const body = doc.querySelector('body')
 	const uls = doc.querySelectorAll('body > ul')
+	const title = doc.querySelector('h1')?.textContent
     
 	if (!body) {
 		return c.json({ error: 'No se pudo obtener los resultados' }, 500)
@@ -120,5 +121,5 @@ export async function resultados(c: Context) {
 		items.push(...parseListElement(ul))
 	}
 
-	return c.json({ items })
+	return c.json({ title,items })
 }

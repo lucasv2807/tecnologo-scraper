@@ -1,0 +1,74 @@
+---
+import NavMateria from "../../../../components/NavMateria.astro";
+import { fetchWrapper } from "../../../../fetch-wrapper";
+import Layout from "../../../../layouts/layout.astro";
+
+const { materia, inicio } = Astro.params;
+const materialData: Material = await fetchWrapper(`/clase/${materia}/material`, { cacheMs: 24 * 60 * 60 * 1000 });
+interface Material {
+    items?: MaterialItem[];
+}
+
+interface MaterialItem {
+    link?: string;
+    title?: string;
+    items?: PurpleItem[];
+}
+
+interface PurpleItem {
+    link?:  string;
+    title:  string;
+    items?: FluffyItem[];
+}
+
+interface FluffyItem {
+    link:  string;
+    title: string;
+}
+
+const materialItems = Array.isArray(materialData?.items) ? materialData.items : [];
+---
+
+<Layout>
+    <div class="container">
+    <NavMateria inicio={inicio} />
+    <main>
+        {materialItems.map((item) => (
+            <div class="material-section">
+                {item.title ? <h2 class="material-section-title">{item.title}</h2> : null}
+
+                {item.link ? (
+                    <p>
+                        <a href={item.link} target="_blank" rel="noopener noreferrer" class="material-link">
+                            {item.title || item.link}
+                        </a>
+                    </p>
+                ) : null}
+
+                {Array.isArray(item.items) && item.items.length > 0 ? (
+                    <ul class="material-list">
+                        {item.items.map((subItem) => (
+                            <li class="material-list-item">
+                                {subItem.link ? (
+                                    <a href={subItem.link} target="_blank" rel="noopener noreferrer" class="material-link">{subItem.title}</a>
+                                ) : (
+                                    <span class="material-subtitle">{subItem.title}</span>
+                                )}
+                                {Array.isArray(subItem.items) && subItem.items.length > 0 ? (
+                                    <ul class="material-sublist">
+                                        {subItem.items.map((nestedItem) => (
+                                            <li class="material-sublist-item">
+                                                <a href={nestedItem.link} target="_blank" rel="noopener noreferrer" class="material-link">{nestedItem.title}</a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : null}
+                            </li>
+                        ))}
+                    </ul>
+                ) : null}
+            </div>
+        ))}
+    </main>
+</div>
+</Layout>

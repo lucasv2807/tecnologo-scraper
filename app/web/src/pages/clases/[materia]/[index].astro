@@ -1,5 +1,6 @@
 ---
 import Layout from "../../../layouts/layout.astro";
+import NavMateria from "../../../components/NavMateria.astro";
 import { fetchWrapper } from "../../../fetch-wrapper";
 
 type LinkItem = {
@@ -44,7 +45,10 @@ type ClaseError = {
 };
 
 const { materia, index } = Astro.params;
-const claseData = await fetchWrapper<ClaseOk | ClaseError>(`/clase/${materia}/${index}`);
+const claseData = await fetchWrapper<ClaseOk | ClaseError>(
+  `/clase/${materia}/${index}`,
+  { cacheMs: 7 * 24 * 60 * 60 * 1000 },
+);
 
 const isError = "error" in claseData;
 const classInfo = isError ? null : (claseData as ClaseOk);
@@ -59,101 +63,110 @@ const resolveSourceHref = (href: string, sourceUrl: string): string => {
 ---
 
 <Layout>
-  <main>
-    {
-      isError ? (
-        <section>
-          <h1>No se pudo cargar la clase</h1>
-          <p>{claseData.error}</p>
-          {claseData.status ? <p>Codigo de estado: {claseData.status}</p> : null}
-          {claseData.sourceUrl ? (
-            <p>
-              Fuente consultada: <a href={claseData.sourceUrl}>{claseData.sourceUrl}</a>
-            </p>
-          ) : null}
-        </section>
-      ) : (
-        <>
-          <header class="hero">
-            <h1>{classInfo!.title || `${classInfo!.materia} - ${classInfo!.pagina}`}</h1>
-          </header>
+  <div class="container">
+    <NavMateria inicio={index} />
+    <main>
+      {
+        isError ? (
+          <section>
+            <h1>No se pudo cargar la clase</h1>
+            <p>{claseData.error}</p>
+            {claseData.status ? (
+              <p>Codigo de estado: {claseData.status}</p>
+            ) : null}
+            {claseData.sourceUrl ? (
+              <p>
+                Fuente consultada:{" "}
+                <a href={claseData.sourceUrl}>{claseData.sourceUrl}</a>
+              </p>
+            ) : null}
+          </section>
+        ) : (
+          <>
+            {classInfo!.fields.length > 0 ? (
+              <section>
+                <h2>Informacion principal</h2>
+                <div class="table-wrapper">
+                  <table>
+                    <tbody>
+                      {classInfo!.fields.map((field) => (
+                        <tr>
+                          <th scope="row">{field.label}</th>
+                          <td>
+                            {field.paragraphs.length > 0 ? (
+                              field.paragraphs.map((paragraph) => (
+                                <p>{paragraph}</p>
+                              ))
+                            ) : (
+                              <p>{field.text}</p>
+                            )}
 
-          {classInfo!.fields.length > 0 ? (
-            <section>
-              <h2>Informacion principal</h2>
-              <div class="table-wrapper">
-                <table>
-                  <tbody>
-                    {classInfo!.fields.map((field) => (
-                      <tr>
-                        <th scope="row">{field.label}</th>
-                        <td>
-                          {field.paragraphs.length > 0 ? (
-                            field.paragraphs.map((paragraph) => <p>{paragraph}</p>)
-                          ) : (
-                            <p>{field.text}</p>
-                          )}
+                            {field.links.length > 0 ? (
+                              <ul>
+                                {field.links.map((link) => (
+                                  <li>
+                                    <a
+                                      href={resolveSourceHref(
+                                        link.href,
+                                        classInfo!.sourceUrl,
+                                      )}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      {link.text || link.href}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            ) : null}
 
-                          {field.links.length > 0 ? (
-                            <ul>
-                              {field.links.map((link) => (
-                                <li>
-                                  <a
-                                    href={resolveSourceHref(link.href, classInfo!.sourceUrl)}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    {link.text || link.href}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : null}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          ) : null}
+            {classInfo!.blocks.length > 0 ? (
+              <section>
+                <h2>Contenido</h2>
+                {classInfo!.blocks.map((block) => {
+                  if (block.type === "heading") {
+                    if (block.level === 1) return <h1>{block.text}</h1>;
+                    if (block.level === 2) return <h2>{block.text}</h2>;
+                    if (block.level === 3) return <h3>{block.text}</h3>;
+                    if (block.level === 4) return <h4>{block.text}</h4>;
+                    if (block.level === 5) return <h5>{block.text}</h5>;
+                    return <h6>{block.text}</h6>;
+                  }
 
-          {classInfo!.blocks.length > 0 ? (
-            <section>
-              <h2>Contenido</h2>
-              {classInfo!.blocks.map((block) => {
-                if (block.type === "heading") {
-                  if (block.level === 1) return <h1>{block.text}</h1>;
-                  if (block.level === 2) return <h2>{block.text}</h2>;
-                  if (block.level === 3) return <h3>{block.text}</h3>;
-                  if (block.level === 4) return <h4>{block.text}</h4>;
-                  if (block.level === 5) return <h5>{block.text}</h5>;
-                  return <h6>{block.text}</h6>;
-                }
+                  if (block.type === "paragraph") {
+                    return <p>{block.text}</p>;
+                  }
 
-                if (block.type === "paragraph") {
-                  return <p>{block.text}</p>;
-                }
+                  const renderList = (items: ListItem[]) => (
+                    <ul>
+                      {items.map((item) => (
+                        <li>
+                          {item.text}
+                          {item.items && item.items.length > 0
+                            ? renderList(item.items)
+                            : null}
+                        </li>
+                      ))}
+                    </ul>
+                  );
 
-                const renderList = (items: ListItem[]) => (
-                  <ul>
-                    {items.map((item) => (
-                      <li>
-                        {item.text}
-                        {item.items && item.items.length > 0 ? renderList(item.items) : null}
-                      </li>
-                    ))}
-                  </ul>
-                );
-
-                return renderList(block.items);
-              })}
-            </section>
-          ) : null}
-        </>
-      )
-    }
-  </main>
+                  return renderList(block.items);
+                })}
+              </section>
+            ) : null}
+          </>
+        )
+      }
+    </main>
+  </div>
 </Layout>
 
 <style>
@@ -194,5 +207,8 @@ const resolveSourceHref = (href: string, sourceUrl: string): string => {
 
   td p:last-child {
     margin-bottom: 0;
+  }
+  .container {
+    display: block;
   }
 </style>

@@ -1,0 +1,81 @@
+---
+import NavMateria from "../../../../components/NavMateria.astro";
+import { fetchWrapper } from "../../../../fetch-wrapper";
+import Layout from "../../../../layouts/layout.astro";
+
+const { materia, inicio } = Astro.params;
+const docentesData: Docentes = await fetchWrapper(`/clase/${materia}/docentes`, { cacheMs: 24 * 60 * 60 * 1000 });
+
+interface Docentes {
+    materia:     string;
+    pagina:      string;
+    sourceUrl:   string;
+    contentUrl:  string;
+    title:       string;
+    fields:      any[];
+    blocks:      Block[];
+}
+
+interface Block {
+    type:   string;
+    level?: number;
+    text?:  string;
+    items?: Item[];
+}
+
+interface Item {
+    text: string;
+}
+
+console.log({ docentesData });
+---
+<Layout>
+    <div class="container">
+    <NavMateria inicio={inicio} />
+    <main>
+
+        {docentesData.blocks.map((block) => {
+            if (block.type === "heading") {
+                return <h2 class={block.level === 1 ? "docente-heading docente-heading-large" : "docente-heading docente-heading-medium"}>{block.text}</h2>;
+            } else if (block.type === "paragraph") {
+                return <p class="docente-paragraph">{block.text}</p>;
+            } else if (block.type === "list") {
+                return (
+                    <ul class="docente-list">
+                    {block.items?.map((item) => (
+                        <li >{item.text}</li>
+                    ))}
+                </ul>
+            );
+        }
+        return null;
+    })}
+    </main>
+    </div>
+</Layout>
+
+<style>
+    .docente-heading {
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .docente-heading-large {
+        font-size: 2rem;
+    }
+
+    .docente-heading-medium {
+        font-size: 1.5rem;
+    }
+
+    .docente-paragraph {
+        margin-bottom: 0.75rem;
+    }
+
+    .docente-list {
+        margin: 0 0 0.75rem;
+        padding-left: 1.25rem;
+        list-style: disc;
+    }
+</style>
