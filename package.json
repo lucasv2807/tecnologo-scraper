@@ -12,6 +12,7 @@
     "start:web": "bun run --filter 'web' preview"
   },
   "dependencies": {
+    "@astrojs/vercel": "^10.0.6",
     "fast-xml-parser": "^5.5.9",
     "hono": "^4.12.9",
     "hono-rate-limiter": "^0.5.3",
