@@ -16,12 +16,11 @@
     "hono": "^4.12.9",
     "hono-rate-limiter": "^0.5.3",
     "html-entities": "^2.6.0",
-    "jsdom": "^29.0.1"
+    "linkedom": "^0.18.12"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/bun": "latest",
-    "@types/jsdom": "^28.0.1",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
     "typescript-eslint": "^8.57.2"

@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { JSDOM } from 'jsdom'
+import { parseHTML } from 'linkedom'
 
 type LinkItem = {
 	text: string
@@ -190,7 +190,7 @@ async function resolveContentDocument(initialHtml: string, baseUrl: string): Pro
 	doc: Document
 	contentUrl: string
 }> {
-	const initialDoc = new JSDOM(initialHtml).window.document
+	const { document: initialDoc } = parseHTML(initialHtml)
 	const frameElements = Array.from(initialDoc.querySelectorAll('frame'))
 
 	if (frameElements.length < 2) {
@@ -210,7 +210,7 @@ async function resolveContentDocument(initialHtml: string, baseUrl: string): Pro
 	}
 
 	const contentHtml = await contentRes.text()
-	const doc = new JSDOM(contentHtml).window.document
+	const { document: doc } = parseHTML(contentHtml)
 
 	return { doc, contentUrl }
 }

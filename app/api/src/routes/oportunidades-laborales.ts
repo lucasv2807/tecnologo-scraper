@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { JSDOM } from 'jsdom'
+import { parseHTML } from 'linkedom'
 
 interface OportunidadLaboral {
 	year: string
@@ -15,7 +15,7 @@ export async function oportunidadesLaborales(c: Context) {
 	const sourceUrl = 'https://www.fing.edu.uy/tecnoinf/mvd/laboral/oportunidades_laborales.htm'
 	const res = await fetch(sourceUrl)
 	const html = await res.text()
-	const doc = new JSDOM(html).window.document
+	const { document: doc } = parseHTML(html)
 	const uls = doc.querySelectorAll('body > ul')
 	const data: OportunidadLaboral[] = []
 

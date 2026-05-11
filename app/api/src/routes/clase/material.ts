@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { JSDOM } from 'jsdom'
+import { parseHTML } from 'linkedom'
 
 interface ListItem {
 	title?: string
@@ -107,7 +107,7 @@ export async function material(c: Context) {
 	const materia = c.req.param('materia')
 	const res = await fetch(`https://www.fing.edu.uy/tecnoinf/mvd/cursos/${materia}/material.htm`)
 	const html = await res.text()
-	const doc = new JSDOM(html).window.document
+	const { document: doc } = parseHTML(html)
 	const body = doc.querySelector('body')
 	const uls = doc.querySelectorAll('body > ul')
     

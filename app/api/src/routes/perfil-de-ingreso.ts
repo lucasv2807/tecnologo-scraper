@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { JSDOM } from 'jsdom'
+import { parseHTML } from 'linkedom'
 
 type PerfilBloque = {
 	titulos: string[]
@@ -18,7 +18,7 @@ export async function perfilDeIngreso(c: Context) {
 	const url = 'https://www.fing.edu.uy/tecnoinf/mvd/perfil.htm'
 	const res = await fetch(url)
 	const html = await res.text()
-	const doc = new JSDOM(html).window.document
+	const { document: doc } = parseHTML(html)
 	const perfilIngreso = doc.querySelectorAll('table')[0]
 	const perfilEgreso = doc.querySelectorAll('table')[1]
 

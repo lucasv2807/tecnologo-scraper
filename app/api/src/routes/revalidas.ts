@@ -1,11 +1,11 @@
 import { Context } from 'hono'
-import { JSDOM } from 'jsdom'
+import { parseHTML } from 'linkedom'
 
 export async function revalidas(c: Context){
 	const url = 'https://www.fing.edu.uy/tecnoinf/mvd/revalidas.htm'
 	const res = await fetch(url)
 	const html = await res.text()
-	const doc = new JSDOM(html).window.document
+	const { document: doc } = parseHTML(html)
 	const table = doc.querySelector('table')
 	const rows = Array.from(table?.querySelectorAll('tr') ?? [])
 

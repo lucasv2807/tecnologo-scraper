@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { JSDOM } from 'jsdom'
+import { parseHTML } from 'linkedom'
 
 export async function clases(c: Context) {
 	const sourceUrl = 'https://www.fing.edu.uy/tecnoinf/mvd/cursos/cursos.htm'
@@ -7,7 +7,7 @@ export async function clases(c: Context) {
 
 	const res = await fetch(sourceUrl)
 	const html = await res.text()
-	const doc = new JSDOM(html).window.document
+	const { document: doc } = parseHTML(html)
 
 	interface CursoItem {
 		text: string

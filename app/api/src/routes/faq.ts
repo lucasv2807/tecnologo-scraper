@@ -1,5 +1,5 @@
 import { Context } from 'hono'
-import { JSDOM } from 'jsdom'
+import { parseHTML } from 'linkedom'
 
 interface FaqItem {
 	question: string
@@ -27,7 +27,8 @@ export async function faq(c: Context) {
 	const url = 'https://www.fing.edu.uy/tecnoinf/mvd/faq.htm'
 	const res = await fetch(url)
 	const html = await res.text()
-	const body = new JSDOM(html).window.document.body
+	const { document } = parseHTML(html)
+	const body = document.body
 	const sections: FaqSection[] = []
 	let currentSection: FaqSection | null = null
 

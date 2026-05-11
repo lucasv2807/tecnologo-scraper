@@ -1,7 +1,7 @@
 import { Context } from 'hono'
 import { XMLParser, } from 'fast-xml-parser'
 import { decode } from 'html-entities'
-import { JSDOM } from 'jsdom'
+import { parseHTML } from 'linkedom'
 
 interface News {
     title: string;
@@ -94,8 +94,7 @@ function parseList(list: Element): ListItem[] {
 }
 
 export const scrapeDescription = (html: string): DescriptionItem[] => {
-	const dom = new JSDOM(html)
-	const document = dom.window.document
+	const { document } = parseHTML(html)
 	const root = document.body ?? document.documentElement
 
 	return Array.from(root.children).flatMap((el): DescriptionItem[] => {
